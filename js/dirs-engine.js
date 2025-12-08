@@ -63,7 +63,7 @@ function renderNode(node, container, depth) {
 
         container.appendChild(line);
 
-        if (child.type === "directory") {
+        if (child.type === "dir") {
             renderNode(child, container, depth + 1);
         }
     }
@@ -111,7 +111,7 @@ function getDirectoryByPath(rootHierarchy, path) {
     for (let i = 1; i < path.length; i++) {
         const name = path[i];
         const next = current.childs.find(
-            n => n.type === "directory" && n.name === name
+            n => n.type === "dir" && n.name === name
         );
         if (!next) return null;
         current = next;
@@ -176,7 +176,7 @@ function getDirectoryChain(rootEntry, path) {
 
     for (let i = 1; i < path.length; i++) {
         const next = current.childs.find(
-            n => n.type === "directory" && n.name === path[i]
+            n => n.type === "dir" && n.name === path[i]
         );
         if (!next) break;
 
@@ -272,7 +272,7 @@ function renderDirectoryTree(rootName, dirNode, path, container) {
 
     // Recurse into subdirectories
     for (const child of dirNode.childs) {
-        if (child.type === "directory") {
+        if (child.type === "dir") {
             renderDirectoryTree(
                 rootName,
                 child,
@@ -336,15 +336,15 @@ function createBreadcrumbHeader(path) {
 
 function buildHierarchy(records) {
     const nodes = new Map();
-    const root = { type: "directory", name: "root", childs: [] };
+    const root = { type: "dir", name: "root", childs: [] };
 
     nodes.set("root", root);
 
     for (const [parentRef, timestamp, sizeOrId, name] of records) {
-        const isDir = sizeOrId === 0;
+        const isDir = sizeOrId === -1;
 
         const node = isDir
-            ? { type: "directory", name, timestamp, childs: [] }
+            ? { type: "dir", name, timestamp, childs: [] }
             : { type: "file", name, timestamp, size: sizeOrId };
 
         const key = isDir ? `${name}#${sizeOrId}` : Symbol();
