@@ -1,0 +1,8 @@
+html {
+  scroll-behavior: smooth;
+}
+
+h3 a {
+  text-decoration: none;
+  margin: 0 2px;
+}
