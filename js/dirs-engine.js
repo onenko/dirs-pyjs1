@@ -341,7 +341,7 @@ function buildHierarchy(records) {
     nodes.set("root", root);
 
     for (const [parentRef, timestamp, sizeOrId, name] of records) {
-        const isDir = sizeOrId === -1;
+        const isDir = sizeOrId < 0;
 
         const node = isDir
             ? { type: "dir", name, timestamp, childs: [] }
