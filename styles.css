@@ -1,8 +1,29 @@
-html {
+/* html {
   scroll-behavior: smooth;
-}
+}  */
 
 h3 a {
   text-decoration: none;
   margin: 0 2px;
+  font-family: sans-serif;
+}
+
+h4 a {
+  text-decoration: none;
+  margin: 0 2px;
+  font-family: sans-serif;
+}
+
+.mono {
+  font-family: monospace;
+}
+
+.file {
+  font-family: monospace;
+  color: #0033cc; /* deep blue */
+}
+
+.dir {
+  font-family: monospace;
+  font-weight: 600;
 }

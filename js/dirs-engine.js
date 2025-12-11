@@ -2,13 +2,26 @@ const rootHierarchies = [];
 
 function formatDate(ts) {
     if (!ts) return "";
-    return new Date(ts * 1000).toLocaleString();
+    const d = new Date(ts * 1000);
+
+    const pad = n => n.toString().padStart(2, "0");
+
+    const YY = d.getFullYear().toString().slice(-2);
+    const MM = pad(d.getMonth() + 1);
+    const DD = pad(d.getDate());
+
+    const hh = pad(d.getHours());
+    const mm = pad(d.getMinutes());
+    const ss = pad(d.getSeconds());
+
+    return `${YY}${MM}${DD} ${hh}${mm}${ss}`;
 }
 
 function formatSize(bytes) {
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    if (bytes < 1024) return bytes + "B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + "K";
+    if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + "M";
+    return (bytes / (1024 * 1024 * 1024)).toFixed(1) + "G";
 }
 
 // For DIR Navigation
@@ -19,14 +32,20 @@ function parsePath() {
 }
 
 
-function createDirLink(rootName, fullPath, dirNode) {
-    const a = document.createElement("a");
-    a.href = `#${[rootName, ...fullPath.slice(1), dirNode.name].join("/")}`;
-    a.textContent = dirNode.name;
-    return a;
+function createDirLinkOld(rootName, fullPath, dirNode) {
+   const a = document.createElement("a");
+   a.href = `#${[rootName, ...fullPath.slice(1), dirNode.name].join("/")}`;
+//   a.textContent = dirNode.name;
+
+   const dirNameSpan = document.createElement("span");
+   dirNameSpan.className = "dir";
+   dirNameSpan.textContent = dirNode.name;
+
+   a.append(dirNameSpan);
+   return a;
 }
 
-function createFileLink(fileNode) {
+function createFileLink_ifWeNeedIt(fileNode) {
     const a = document.createElement("a");
     a.href = "#";
     a.textContent = fileNode.name;
@@ -35,6 +54,17 @@ function createFileLink(fileNode) {
         console.log("File:", fileNode);
     };
     return a;
+}
+
+function createFileLink_asSimpleText(fileNode) {
+    return fileNode.name;
+}
+
+function createFileLink(fileNode) {
+   const fileNameSpan = document.createElement("span");
+   fileNameSpan.className = "file";
+   fileNameSpan.textContent = fileNode.name;
+   return fileNameSpan;
 }
 
 
@@ -72,10 +102,18 @@ function renderDirectorySection(rootName, dirNode, path) {
     for (const child of dirNode.childs) {
         const line = document.createElement("div");
 
-        line.append(formatDate(child.timestamp), " ");
+	const dateSpan = document.createElement("span");
+	dateSpan.className = "mono";
+	const dateContent = formatDate(child.timestamp) + " ";
+        var sizeContent = "<dir>";
+        if (child.type === "file") {
+            sizeContent = formatSize(child.size);
+        }
+
+	dateSpan.textContent = dateContent + " " + sizeContent;
+	line.append(dateSpan, " ");
 
         if (child.type === "file") {
-            line.append(formatSize(child.size), " ");
             line.append(createFileLink(child));
         } else {
             line.append(createDirLink(rootName, path, child));
@@ -89,11 +127,18 @@ function renderDirectorySection(rootName, dirNode, path) {
 
 
 function createDirLink(rootName, path, dirNode) {
-    const fullPath = [...path, dirNode.name].join("/");
+   const fullPath = [...path, dirNode.name].join("/");
 
-    const a = document.createElement("a");
-    a.href = `#${fullPath}`;
-    a.textContent = dirNode.name;
+   const a = document.createElement("a");
+   a.href = `#${fullPath}`;
+
+   const dirNameSpan = document.createElement("span");
+   dirNameSpan.className = "dir";
+   dirNameSpan.textContent = dirNode.name;
+
+   a.appendChild(dirNameSpan);
+
+//    a.textContent = dirNode.name;
     return a;
 }
 
@@ -166,7 +211,7 @@ function renderRootList(clear = true) {
     if (clear) container.innerHTML = "";
 
     const h = document.createElement("h3");
-    h.textContent = "Some Header";
+    h.textContent = "Storage Directories";
     container.appendChild(h);
 
     for (const r of rootHierarchies) {
@@ -181,7 +226,7 @@ function renderRootList(clear = true) {
 }
 
 function createBreadcrumbHeader(path) {
-    const h = document.createElement("h3");
+    const h = document.createElement("h4");
 
     path.forEach((part, index) => {
         if (index > 0) {
