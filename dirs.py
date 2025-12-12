@@ -17,7 +17,14 @@ def scan_directory(root_path, root_js_name):
         return dir_counters[dirname]  # -1, then -2, -3 ...
 
     def process_dir(dir_path, parent_key):
-        for entry in os.scandir(dir_path):
+	print(f"Started to process dir: {dir_path}")
+        # --- SORTING BLOCK ---
+        entries = list(os.scandir(dir_path))
+        # Sort by: (is_file? 1 : 0), then name.lower()
+        entries.sort(key=lambda e: (e.is_file(), e.name.lower()))
+        # ----------------------
+
+        for entry in entries:
             full_path = os.path.join(dir_path, entry.name)
             stat = entry.stat()
             timestamp = int(stat.st_mtime)  # seconds (epoch)

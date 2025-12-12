@@ -51,3 +51,23 @@ The mechanic with ```"<dir-name>#<negative-id>"``` allows to resolve conflicts, 
 repeats in some other part of file hierarchy.
 
 
+### Usage
+
+Actually the size of hierarchies is huge, considering that storage discs contain archives with thousands of raw photo jpegs, etc.
+It means that the rendering of HTML when index.html is called, takes several seconds.
+This is acceptable, and navigation through the hierarchy by links is working.
+Whats bad, is the bug in Chromium browser engine: when the size of page is huge, the search (Ctrl-F)
+fails to position the page to the searched string.
+
+How to reproduce it: open huge index.html with some unique string near the end of page, go to the start of page,
+Ctrl-F and type that unique string. Search box says that 1/1 match found, but the page is positioned in wrong place.
+
+This bug is reproduced on AVG Secure Browser and Edge, built on the same Chromium open source project.
+When retried on FireFox, the search works fine, so there is no such bug in FireFox.
+
+### Details
+
+Latest version of ```dirs.py``` script sorts the content of every directory. Sorting rules:
+- subdirectories go first, then files
+- subdirectories are alphabetically sorted, case in-sensitive
+- files are also alphabetically sorted, case in-sensitive.
